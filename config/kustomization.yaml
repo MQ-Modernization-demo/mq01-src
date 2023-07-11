@@ -1,5 +1,5 @@
 resources:
-- ./queuemanager.yaml
+- ./qmgr.yaml
 
 generatorOptions:
  disableNameSuffixHash: true
@@ -9,9 +9,8 @@ configMapGenerator:
 - name: mqsc-configmap
   behavior: create
   files:
-  - static-definitions.mqsc
+   - ../customization/mqsc/qmgr.mqsc
 
 # Add the configMap that will be used for dynamic updates, this should be used queue manager wide i.e. stay the same in each environment.
 components:
-- ../../components/dynamic-mqsc/generic-qmgr
-- ../../components/scripts
+- ../..customization/scripts
