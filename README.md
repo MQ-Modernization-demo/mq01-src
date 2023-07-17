@@ -47,7 +47,7 @@ Notice:
 
 This tutorial will walk you through the process of setting up this configuration:
 - Step 1: Follow [these instructions this
-  repository](https://github.com/mq-modernizatrion-demo/mq01-ops#readme) to set up your
+  repository](https://github.com/mq-modernization-demo/mq01-ops#readme) to set up your
   cluster, ArgoCD and the `mq01-ops` repository. When complete, you will return
   to this repository to complete step 2.
 - Step 2: Continue with the instructions in this README to create the `mq01-src`
@@ -69,13 +69,19 @@ export GITTOKEN=<PAT copied from GitHub>
 export GITCONFIG=$(printf "[credential \"https://github.com\"]\n  helper = store")
 ```
 
+---
+
 ## Creating the `mq01-src` repository
 
-We use this [template repository](https://github.com/mq-modernizatrion-demo/mq01-src) to create
+We use this [template repository](https://github.com/mq-modernization-demo/mq01-src) to create
 `mq01-src` in our new organization. Forking a template creates a repository with
 a clean git history, allowing us to track the history of changes to our queue manager `mq01` every time we update `mq01-src`.
 
-<br> Click on [this URL](https://github.com/mq-modernizatrion-demo/mq01-src/generate) to fork
+> **Note**<br>
+>
+> Might need to add screenshot here
+
+<br> Click on [this URL](https://github.com/mq-modernization-demo/mq01-src/generate) to fork
 from the `mq01-src` template repository:
 
 <img src="./docs/images/diagram2.png" alt="drawing" width="800"/>
@@ -182,58 +188,47 @@ tree -L 1
 .
 ├── LICENSE
 ├── README.md
-├── docs
-├── domain
-└── gateways
+├── bin
+├── config
+├── customize
+└── docs
 ```
 
 Notice the simplicity of this structure: a `LICENSE` file, this `README` and
-associated documentation in `docs`, together with a domain and a set of
-gateways. Let's explore the `domain` and `gateways` folders a little more deeply.
+associated documentation in `docs`, together with three other folders; let's
+explore these `bin` and `config` and `customize` folders a little more deeply.
 
 Issue the following command:
 
 ```bash
-tree domain gateways
+tree bin config customize
 ```
 
 which will show the structure of these folders:
 
 ```bash
-domain
+bin
 └── Dockerfile
-gateways
-├── gateway01
-│   ├── config
-│   │   └── BookingServiceBackend.cfg
-│   ├── local
-│   │   └── BookingServiceBackend
-│   │       ├── BookingServiceBackend
-│   │       │   ├── BookingResponse_Transform.xsl
-│   │       │   └── BookingServiceBackend_Transform.xsl
-│   │       ├── GenerateBaggageStatusSOAPResponse.xsl
-│   │       ├── ReservationCodeFilter.xsl
-│   │       ├── airportDetail.js
-│   │       ├── bookingservice.wsdl
-│   │       ├── readLocalFile.js
-│   │       └── www
-│   │           └── ibmair
-│   │               └── index.html
-│   └── yamls
-│       ├── booking-service-ingress.yaml
-│       ├── booking-service-service.yaml
-│       ├── gateway-webui-service.yaml
-│       └── gateway.yaml
-└── gateway02
+config
+├── qm.ini
+├── scripts
+│   ├── kustomization.yaml
+│   ├── start-mqsc.sh
+│   └── stop-mqsc.sh
+└── yamls
+    ├── kustomization.yaml
+    └── qmgr.yaml
+customize
+└── mqsc
+    └── qmgr.mqsc
 ```
 
 Note:
-* It makes sense for each queue manager domain to map to a
-  container. It provides a natural unit for isolation, management and scaling.
-  The `Dockerfile` in the `domain` folder contains the exact version MQ
-  image being used by `mq01`.
-* 
-
+* It makes sense for each queue manager to map to a container. It provides a
+  natural unit for isolation, management and scaling. The `Dockerfile` in the
+  `bin` folder contains the exact version MQ image being used by `mq01`.
+* Config
+* Custom
 
 ---
 
@@ -265,20 +260,22 @@ ls
 
 ## Update ingress YAML
 
-The ingress used by the mq01 appliance needs to be customized for the cluster. It would be better to do this customization at deployment time, as this is the point where we know which cluster to which we're going to deploy. To simplify the tutorial we do it now.
+The ingress used by the `mq01` appliance needs to be customized for the cluster.
+It would be better to do this customization at deployment time, as this is the
+point where we know which cluster to which we're going to deploy. To simplify
+the tutorial we do it now.
 
 The YAML is sourced from the `mq01-src` repository and looks like this:
 
 ```yaml
-
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: booking-service
+  name: mq01
   namespace: mq01-dev
 spec:
   rules:
-    - host: booking-service-mq01-dev.<cluster sub-domain>
+    - host: mq01-service-mq01-dev.<cluster sub-domain>
 # replace <cluster sub-domain> with output from: oc get ingresscontrollers/default -n openshift-ingress-operator -o jsonpath='{.status.domain}'
       http:
         paths:
@@ -286,21 +283,21 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: mq01-booking-service
+                name: mq01-service
                 port:
-                  number: 12001
+                  number: 1414
 ```
 
 Issue the following command to locate the ingress YAML used by your `mq01` appliance:
 
 ```bash
-echo https://github.com/$GITORG/mq01-src/blob/main/gateways/gateway01/yamls/booking-service-ingress.yaml
+echo https://github.com/$GITORG/mq01-src/blob/main/config/yamls/mq01-ingress.yaml
 ```
 
 It will return a URL, for example:
 
 ```bash
-https://github.com/mqorg-odowdaibm2/mq01-src/blob/main/gateways/gateway01/yamls/booking-service-ingress.yaml
+https://github.com/mqorg-odowdaibm/mq01-src/blob/main/config/yamls/mq01-ingress.yaml
 ```
 
 Copy this URL into your favourite browser.
@@ -314,7 +311,7 @@ oc get ingresscontrollers/default -n openshift-ingress-operator -o jsonpath='{.s
 which will look something like this:
 
 ```bash
-MQ-cluster-1-d02cf90349a0fe46c9804e3ab1fe2643-0000.eu-gb.containers.appdomain.cloud
+mq-cluster-1-d02cf90349a0fe46c9804e3ab1fe2643-0000.eu-gb.containers.appdomain.cloud
 ```
 
 Commit this change to GitHub; this Ingress file will now be used for your `mq01` queue manager.
