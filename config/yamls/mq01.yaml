@@ -1,7 +1,7 @@
 apiVersion: mq.ibm.com/v1beta1
 kind: QueueManager
 metadata:
-  name: qm1
+  name: mq01
   annotations:
     argocd.argoproj.io/sync-wave: "300"
     helm.sh/hook-weight: "300"
@@ -22,12 +22,17 @@ spec:
     logFormat: Basic
     metrics:
       enabled: true
-    name: QM1
+    name: MQ01
     mqsc:
       - configMap:
-          name: mqsc-configmap
+          name: mq01-mqsc
           items:
-            - static-definitions.mqsc
+            - mq01.mqsc
+    ini:
+      - configMap:
+          name: mq01-ini
+          items:
+          - mq01.ini
     readinessProbe:
       failureThreshold: 1
       initialDelaySeconds: 10
