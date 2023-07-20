@@ -275,15 +275,14 @@ metadata:
   namespace: mq01-dev
 spec:
   rules:
-    - host: mq01-service-mq01-dev.<cluster sub-domain>
-# replace <cluster sub-domain> with output from: oc get ingresscontrollers/default -n openshift-ingress-operator -o jsonpath='{.status.domain}'
+    - host: mq01-ibm-mq.mq01-dev.<cluster sub-domain>
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: mq01-service
+                name: mq01-ibm-mq
                 port:
                   number: 1414
 ```
@@ -300,7 +299,7 @@ It will return a URL, for example:
 https://github.com/mqorg-odowdaibm/mq01-src/blob/main/config/yamls/mq01-ingress.yaml
 ```
 
-Copy this URL into your favourite browser.
+Copy this URL into your favorite browser.
 
 Edit the ingress YAML file, replacing the `<cluster sub-domain>` with the output from the following command:
 
