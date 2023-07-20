@@ -5,7 +5,7 @@ metadata:
   namespace: mq01-dev
 spec:
   rules:
-    - host: mq01-service-mq01-dev.<cluster sub-domain>
+    - host: mq01-ibm-mq.mq01-dev.apps.sno-ajo-1.snoajo1.com
 # replace <cluster sub-domain> with output from: oc get ingresscontrollers/default -n openshift-ingress-operator -o jsonpath='{.status.domain}'
       http:
         paths:
@@ -13,6 +13,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: mq01-service
+                name: mq01-ibm-mq
                 port:
                   number: 1414

@@ -2,17 +2,15 @@ apiVersion: mq.ibm.com/v1beta1
 kind: QueueManager
 metadata:
   name: mq01
-  annotations:
-    argocd.argoproj.io/sync-wave: "300"
-    helm.sh/hook-weight: "300"
 spec:
   license:
     accept: true
-    license: L-RJON-BZFQU2
+    license: L-YBXJ-ADJNSM
     use: NonProduction
   queueManager:
     debug: false
-    imagePullPolicy: IfNotPresent
+    image: image-registry.openshift-image-registry.svc:5000/mq01-ci/mq01:0.0.1
+    imagePullPolicy: Always
     livenessProbe:
       failureThreshold: 1
       initialDelaySeconds: 90
@@ -72,6 +70,6 @@ spec:
     collector: {}
     enabled: false
     namespace: ""
-  version: 9.2.3.0-r1
+  version: 9.3.3.0-r1
   web:
-    enabled: true
+    enabled: false

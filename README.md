@@ -29,7 +29,7 @@ platform engineering with MQ in a Kubernetes environment.
 
 The following diagram shows a CICD pipeline for MQ:
 
-![diagram1](./docs/images/diagram1.drawio.png)
+![diagram1](./xdocs/images/diagram1.drawio.png)
 
 Notice:
 
@@ -84,7 +84,7 @@ a clean git history, allowing us to track the history of changes to our queue ma
 <br> Click on [this URL](https://github.com/mq-modernization-demo/mq01-src/generate) to fork
 from the `mq01-src` template repository:
 
-<img src="./docs/images/diagram2.png" alt="drawing" width="800"/>
+<img src="./xdocs/images/diagram2.png" alt="drawing" width="800"/>
 
 This screen allows you to define the properties for you copy of the `mq01-src`
 repository.
@@ -100,7 +100,7 @@ Specifically:
 <br> Click on `Create repository from template`:
 
 <br> This repository will be cloned to the specified GitHub account:
-<img src="./docs/images/diagram3.png" alt="drawing" width="800"/>
+<img src="./xdocs/images/diagram3.png" alt="drawing" width="800"/>
 
 <br> You have successfully created a copy of the `mq01-src` repository in your
 organization.
@@ -167,7 +167,7 @@ structure of the `mq01` queue manager.
 <br> There are three elements of the `mq01` virtual queue manageras shown
 in the following diagram:
 
-<img src="./docs/images/diagram4.drawio.png" alt="drawing" width="800"/>
+<img src="./xdocs/images/diagram4.drawio.png" alt="drawing" width="800"/>
 
 Note
 * `mq01` has a set of multi-protocol gateway definitions that are developed by a
@@ -190,18 +190,18 @@ tree -L 1
 ├── README.md
 ├── bin
 ├── config
-├── customize
-└── docs
+├── user
+└── xdocs
 ```
 
 Notice the simplicity of this structure: a `LICENSE` file, this `README` and
-associated documentation in `docs`, together with three other folders; let's
-explore these `bin` and `config` and `customize` folders a little more deeply.
+associated documentation in `xdocs`, together with three other folders; let's
+explore these `bin` and `config` and `user` folders a little more deeply.
 
 Issue the following command:
 
 ```bash
-tree bin config customize
+tree bin config user
 ```
 
 which will show the structure of these folders:
@@ -218,7 +218,7 @@ config
 └── yamls
     ├── kustomization.yaml
     └── qmgr.yaml
-customize
+user
 └── mqsc
     └── qmgr.mqsc
 ```
@@ -227,8 +227,8 @@ Note:
 * It makes sense for each queue manager to map to a container. It provides a
   natural unit for isolation, management and scaling. The `Dockerfile` in the
   `bin` folder contains the exact version MQ image being used by `mq01`.
-* Config
-* Custom
+* `config` folder
+* `user` folder
 
 ---
 
@@ -357,90 +357,17 @@ Show progress in `tkn` command line tool?
 
 ## Try out service using API tool
 
-Now that the `mq0`1 queue manager is running the BookingService, we can test it.
+Now that the `mq01` queue manager is running the BookingService, we can test it.
 
 We are going to use the MQ REST API.
 
 You can use any API test tool; [RESTER](https://addons.mozilla.org/en-GB/firefox/addon/rester/) is good if you use Firefox.
 
-Configure the tool to make the following API request:
-
-* **Method:** `POST`
-* **URL:** `booking-service-mq01-dev.<cluster-subnet>`
-* **Additional headers:** `Content-Type: application/xml`
-* **Payload:**
-   ```xml
-   <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:book="http://www.ibm.com/MQ/IBMAir/BookingService/">
-      <soapenv:Header/>
-      <soapenv:Body>
-         <book:BookingRequest>
-            <book:Booking>
-               <book:ReservationCode>IBM99V16I</book:ReservationCode>
-               <book:BookingType>I</book:BookingType>
-               <book:PaymentCardDetails>
-                  <book:Number>4485710246935191</book:Number>
-                  <book:Expiry>
-                     <book:Year>2017</book:Year>
-                     <book:Month>2</book:Month>
-                  </book:Expiry>
-                  <book:CVV>924</book:CVV>
-                  <book:Type>Visa</book:Type>
-                  <book:HolderName>James Roberts</book:HolderName>
-               </book:PaymentCardDetails>
-               <book:BillingDetails>
-                  <book:FirstName>James</book:FirstName>
-                  <book:LastName>Roberts</book:LastName>
-                  <book:Address>314 S. Wells St</book:Address>
-                  <book:City>Chicago</book:City>
-                  <book:State>IL</book:State>
-                  <book:ZIP>60606</book:ZIP>
-                  <book:Country>USA</book:Country>
-               </book:BillingDetails>
-            </book:Booking>
-         </book:BookingRequest>
-      </soapenv:Body>
-   </soapenv:Envelope>
-   ```
-
-The request should return `200 OK` with the following `Response`:
-
-   ```xml
-   ?xml version="1.0" encoding="UTF-8"?>
-   <soapenv:Envelope
-       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-       xmlns:book="http://www.ibm.com/MQ/IBMAir/BookingService/">
-       <soapenv:Header/>
-       <soapenv:Body>
-           <!--Happy Path UC1-->
-           <book:BookingResponse>
-               <book:ConfirmationText>Processed 0112459898A</book:ConfirmationText>
-               <book:Booking>
-                   <book:ReservationCode>IBM99V16I</book:ReservationCode>
-                   <book:BookingType>I</book:BookingType>
-                   <book:PaymentCardDetails>
-                       <book:Number>************5191</book:Number>
-                       <book:Type>Visa</book:Type>
-                       <book:HolderName>James Roberts</book:HolderName>
-                   </book:PaymentCardDetails>
-                   <book:BillingDetails>
-                       <book:FirstName>James</book:FirstName>
-                       <book:LastName>Roberts</book:LastName>
-                       <book:Address>314 S. Wells St</book:Address>
-                       <book:City>Chicago</book:City>
-                       <book:State>IL</book:State>
-                       <book:ZIP>60606</book:ZIP>
-                       <book:Country>USA</book:Country>
-                   </book:BillingDetails>
-               </book:Booking>
-           </book:BookingResponse>
-       </soapenv:Body>
-   </soapenv:Envelope>
-   ```
 
 ## Congratulations
 
 Well done! You have successfully completed this tutorial. You have
 
 * Configured a Kubernetes cluster for Platform Engineering including CICD and GitOps.
-* Built a queue manager, deployed a multi-protocol gateway and tested it.
+* Built and deployed a queue manager, deployed it, and interacted with it.
 
