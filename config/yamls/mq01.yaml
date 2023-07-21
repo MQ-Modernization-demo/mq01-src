@@ -46,8 +46,6 @@ spec:
         memory: 1Gi
     availability:
       type: SingleInstance
-    image: "replace"
-    imagePullPolicy: Always
     storage:
       persistedData:
         enabled: false
