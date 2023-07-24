@@ -30,7 +30,7 @@ spec:
       - configMap:
           name: mq01-ini
           items:
-          - mq01.ini
+            - mq01.ini
     readinessProbe:
       failureThreshold: 1
       initialDelaySeconds: 10
