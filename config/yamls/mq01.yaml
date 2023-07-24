@@ -62,6 +62,8 @@ spec:
         env:
         - name: MQSNOAUT
           value: "yes"
+        - name: MQ_ENABLE_EMBEDDED_WEB_SERVER
+          value: "true"
   terminationGracePeriodSeconds: 30
   tracing:
     agent: {}
