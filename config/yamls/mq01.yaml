@@ -47,12 +47,13 @@ spec:
     availability:
       type: SingleInstance
     storage:
-      persistedData:
-        enabled: false
+      defaultClass: default
       queueManager:
-        type: ephemeral
+        type: persistent-claim
+      persistedData:
+        enabled: true
       recoveryLogs:
-        enabled: false
+        enabled: true
   securityContext:
     initVolumeAsRoot: false
   template:
