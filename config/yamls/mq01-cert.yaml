@@ -1,0 +1,28 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: mq01-secret1
+  namespace: mq01-dev
+spec:
+  dnsNames:
+    - dummy.domain.com
+#  type: opaque
+  secretName: mq01-qmgr-cert
+  issuerRef:
+    name: mq-selfsigned-issuer
+  duration: 2160h0m0s # 90d
+  renewBefore: 360h0m0s # 15d
+  subject:
+    organizations:
+      - mq-org
+# The use of the common name field has been deprecated since 2000 and is
+# discouraged from being used.
+  commonName: dummy.domain.com
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 4096
+  usages:
+    - server auth
+  privateKey:
+    rotationPolicy: Always
