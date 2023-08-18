@@ -6,7 +6,6 @@ metadata:
 spec:
   dnsNames:
     - dummy.domain.com
-#  type: opaque
   secretName: mq01-qmgr-cert
   issuerRef:
     name: mq-selfsigned-issuer
@@ -24,5 +23,7 @@ spec:
     size: 4096
   usages:
     - server auth
+    - client auth
   privateKey:
     rotationPolicy: Always
+    
