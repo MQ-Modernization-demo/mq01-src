@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mq-test
+  namespace: mq01-ci
+spec:
+  workspaces:
+    - name: source
+      description: Tests mq01 queue manager
+  steps:
+    - name: echo
+      image: alpine
+      script: |
+        #!/bin/sh
+        echo "hello from mq-test task"
+
+        # List Queue manager YAMLs
+        cd $(workspaces.source.path)/repo/main
+
+        # List YAMLs for each Queue manager service.
+        cd config/yamls
+        ls -alt *.yaml

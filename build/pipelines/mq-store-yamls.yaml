@@ -1,0 +1,25 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mq-store-yamls
+  namespace: mq01-ci
+spec:
+  workspaces:
+    - name: source
+      description: Store Queue manager YAMLs
+  steps:
+    - name: echo
+      image: alpine
+      script: |
+        #!/bin/sh
+        echo "hello from mq-store-yamls task"
+
+        # Navigate to workspace
+        cd $(workspaces.source.path)/repo/main
+
+        # Make target folder
+        mkdir -p $(workspaces.source.path)/repo/ops/environments/dev/mq01
+
+        # Copy generated YAMLs to mq01 gitops repo
+        ls yamls/*
+        cp yamls/* $(workspaces.source.path)/repo/ops/environments/dev/mq01/.

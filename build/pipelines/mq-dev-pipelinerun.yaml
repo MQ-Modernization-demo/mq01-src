@@ -1,0 +1,49 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: mq-dev-pipeline-run-
+  namespace: mq01-ci
+spec:
+  serviceAccountName: pipeline
+  pipelineRef:
+    name: mq-dev-pipeline
+  workspaces:
+  - name: shared-data
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+  - name: git-creds
+    secret:
+      secretName: mq01-git-credentials
+  params:
+  - name: source-repo-url
+    value: https://github.com/$GITORG/mq01-src.git
+  - name: dockerfile
+    value: $(workspaces.source.path)/repo/main/bin/Dockerfile
+  - name: ops-repo-url
+    value: https://github.com/$GITORG/mq01-ops.git
+  - name: image-reference
+    #value: registry.dev.svc.cluster.local:5000/mq01-ci/mq01:0.0.1
+    value: image-registry.openshift-image-registry.svc:5000/mq01-ci/mq01:0.0.1
+  - name: storage-driver
+    value: vfs
+  - name: tls-verify
+    value: "false"
+  - name: git-user-name
+    value: "odowdaibm"
+  - name: git-user-email
+    value: "a_o-dowd@uk.ibm.com"
+  - name: git-script
+    value: |
+      # Push changes to GitHub
+      cd $(workspaces.source.path)/repo/ops
+      git checkout -b main
+      git add .
+      git commit -s -m "Updated by build pipeline"
+      git push origin main
+
+      # All done

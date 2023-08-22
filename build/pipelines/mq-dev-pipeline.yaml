@@ -1,0 +1,121 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mq-dev-pipeline
+  namespace: mq01-ci
+spec:
+  description: |
+    This pipeline clones the Queue manager source repository builds an image,
+    pushes it to a registry, and runs a user script.
+  params:
+  - name: source-repo-url
+    type: string
+  - name: dockerfile
+    type: string
+  - name: ops-repo-url
+    type: string
+  - name: image-reference
+    type: string
+  - name: tls-verify
+    type: string
+  - name: storage-driver
+    type: string
+  - name: git-user-name
+    type: string
+  - name: git-user-email
+    type: string
+  - name: git-script
+    type: string
+  workspaces:
+  - name: shared-data
+  - name: git-creds
+  tasks:
+  - name: clone-source
+    taskRef:
+      name: mq-git-clone
+    workspaces:
+    - name: output
+      workspace: shared-data
+    - name: basic-auth
+      workspace: git-creds
+    params:
+    - name: url
+      value: $(params.source-repo-url)
+    - name: revision
+      value: "main"
+    - name: subdirectory
+      value: repo/main
+  - name: build-image
+    runAfter: ["clone-source"]
+    taskRef:
+      name: buildah
+    workspaces:
+    - name: source
+      workspace: shared-data
+    params:
+    - name: IMAGE
+      value: $(params.image-reference)
+    - name: DOCKERFILE
+      value: $(params.dockerfile)
+    - name: CONTEXT
+      value: .
+    - name: TLSVERIFY
+      value: $(params.tls-verify)
+    - name: STORAGE_DRIVER
+      value: $(params.storage-driver)
+  - name: gen-yamls
+    runAfter: ["build-image"]
+    taskRef:
+      name: mq-gen-yamls
+    workspaces:
+    - name: source
+      workspace: shared-data
+    params:
+  - name: test
+    runAfter: ["gen-yamls"]
+    taskRef:
+      name: mq-test
+    workspaces:
+    - name: source
+      workspace: shared-data
+    params:
+  - name: clone-ops
+    runAfter: ["test"]
+    taskRef:
+      name: git-clone
+    workspaces:
+    - name: output
+      workspace: shared-data
+    - name: basic-auth
+      workspace: git-creds
+    params:
+    - name: url
+      value: $(params.ops-repo-url)
+    - name: revision
+      value: "main"
+    - name: subdirectory
+      value: repo/ops
+  - name: store-yamls
+    runAfter: ["clone-ops"]
+    taskRef:
+      name: mq-store-yamls
+    workspaces:
+    - name: source
+      workspace: shared-data
+    params:
+  - name: push-yamls
+    runAfter: ["store-yamls"]
+    taskRef:
+      name: git-cli
+    workspaces:
+    - name: source
+      workspace: shared-data
+    - name: basic-auth
+      workspace: git-creds
+    params:
+    - name: GIT_USER_NAME
+      value: $(params.git-user-name)
+    - name: GIT_USER_EMAIL
+      value: $(params.git-user-email)
+    - name: GIT_SCRIPT
+      value: $(params.git-script)

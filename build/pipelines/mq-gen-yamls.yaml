@@ -1,0 +1,47 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mq-gen-yamls
+  namespace: mq01-ci
+spec:
+  workspaces:
+    - name: source
+      description: Generate Queue manager YAMLs
+  steps:
+    - name: echo
+      image: alpine
+      script: |
+        #!/bin/sh
+        echo "hello from mq-gen-yamls task"
+
+        # install curl and openssl; they are not included in Alpine by default
+        apk update && apk add --no-cache curl openssl
+
+        # install kubectl
+        curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+        chmod +x ./kubectl
+        mv ./kubectl /usr/local/bin
+        kubectl version --client
+
+        # Generate Kubernetes artefacts from corresponding source artefacts
+        cd $(workspaces.source.path)/repo/main
+
+        # Build YAMLs for queue manager; store in /yamls folder
+        mkdir -p yamls
+
+        # Copy simple YAMLs from source
+        cp config/yamls/mq01.yaml yamls/.
+        cp config/yamls/mq01-ingress.yaml yamls/.
+
+        # Generate qm.ini and MQSC YAMLs
+        kubectl create configmap mq01-ini -n mq01-dev --from-file=mq01.ini=config/qm.ini --dry-run=client -o yaml > yamls/mq01-ini.yaml
+        kubectl create configmap mq01-mqsc -n mq01-dev --from-file=user/mqsc/mq01.mqsc --dry-run=client -o yaml > yamls/mq01-mqsc.yaml
+
+        # We should probably copy mqs.ini into Docker image, as it will contain information relevant to the migrated queue manager
+        ls config/mqs.ini
+
+        # List YAMLs
+        ls -alt yamls/*.yaml
+        cat yamls/*.yaml
+
+
