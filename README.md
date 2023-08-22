@@ -354,14 +354,33 @@ tkn pipelinerun logs ,mq-dev-pipeline-run-xxxxx -n mq01-dev -f
 
 Show progress in `tkn` command line tool?
 
-## Try out service using API tool
+---
 
-Now that the `mq01` queue manager is running the BookingService, we can test it.
+## Interact with Queue manager
 
-We are going to use the MQ REST API.
+We can connect to the queue manager using the MQ web console. The MQ operator has created two routes for 
+the queue manager:
 
-You can use any API test tool; [RESTER](https://addons.mozilla.org/en-GB/firefox/addon/rester/) is good if you use Firefox.
+- a route for applications and channels to connect to the queue manager
+- a route for users to connect to the web console
 
+Issue the following command:
+
+```bash
+oc get route -n mq01-dev
+```
+
+which shows these two routes:
+
+```bash
+NAME              HOST/PORT                                             PATH   SERVICES      PORT   TERMINATION   WILDCARD
+mq01-ibm-mq-qm    mq01-ibm-mq-qm-mq01-dev.apps.sno-ajo-1.snoajo1.com           mq01-ibm-mq   1414   passthrough   None
+mq01-ibm-mq-web   mq01-ibm-mq-web-mq01-dev.apps.sno-ajo-1.snoajo1.com          mq01-ibm-mq   9443   passthrough   None
+```
+
+You can connect to the web console using the `mq01-ibm-mq-web` hostname in your browser.
+
+---
 
 ## Congratulations
 
