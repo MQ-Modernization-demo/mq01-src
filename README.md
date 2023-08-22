@@ -73,9 +73,11 @@ export GITCONFIG=$(printf "[credential \"https://github.com\"]\n  helper = store
 
 ## Creating the `mq01-src` repository
 
-We use this [template repository](https://github.com/mq-modernization-demo/mq01-src) to create
+We use this [template
+repository](https://github.com/mq-modernization-demo/mq01-src) to create
 `mq01-src` in our new organization. Forking a template creates a repository with
-a clean git history, allowing us to track the history of changes to our queue manager `mq01` every time we update `mq01-src`.
+a clean git history, allowing us to track the history of changes to our queue
+manager `mq01` every time we update `mq01-src`.
 
 > **Note**<br>
 >
@@ -258,65 +260,6 @@ ls
 
 ---
 
-## Update ingress YAML
-
-The ingress used by the `mq01` appliance needs to be customized for the cluster.
-It would be better to do this customization at deployment time, as this is the
-point where we know which cluster to which we're going to deploy. To simplify
-the tutorial we do it now.
-
-The YAML is sourced from the `mq01-src` repository and looks like this:
-
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: mq01
-  namespace: mq01-dev
-spec:
-  rules:
-    - host: mq01-ibm-mq.mq01-dev.<cluster sub-domain>
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: mq01-ibm-mq
-                port:
-                  number: 1414
-```
-
-Issue the following command to locate the ingress YAML used by your `mq01` appliance:
-
-```bash
-echo https://github.com/$GITORG/mq01-src/blob/main/config/yamls/mq01-ingress.yaml
-```
-
-It will return a URL, for example:
-
-```bash
-https://github.com/mqorg-odowdaibm/mq01-src/blob/main/config/yamls/mq01-ingress.yaml
-```
-
-Copy this URL into your favorite browser.
-
-Edit the ingress YAML file, replacing the `<cluster sub-domain>` with the output from the following command:
-
-```bash
-oc get ingresscontrollers/default -n openshift-ingress-operator -o jsonpath='{.status.domain}'
-```
-
-which will look something like this:
-
-```bash
-mq-cluster-1-d02cf90349a0fe46c9804e3ab1fe2643-0000.eu-gb.containers.appdomain.cloud
-```
-
-Commit this change to GitHub; this Ingress file will now be used for your `mq01` queue manager.
-
----
-
 ## Create cluster pipeline resources
 
 ```bash
@@ -358,8 +301,8 @@ Show progress in `tkn` command line tool?
 
 ## Interact with Queue manager
 
-We can connect to the queue manager using the MQ web console. The MQ operator has created two routes for 
-the queue manager:
+We can connect to the queue manager using the MQ web console. The MQ operator
+has created two routes for the queue manager:
 
 - a route for applications and channels to connect to the queue manager
 - a route for users to connect to the web console
@@ -378,7 +321,8 @@ mq01-ibm-mq-qm    mq01-ibm-mq-qm-mq01-dev.apps.sno-ajo-1.snoajo1.com           m
 mq01-ibm-mq-web   mq01-ibm-mq-web-mq01-dev.apps.sno-ajo-1.snoajo1.com          mq01-ibm-mq   9443   passthrough   None
 ```
 
-You can connect to the web console using the `mq01-ibm-mq-web` hostname in your browser.
+You can connect to the web console using the `mq01-ibm-mq-web` hostname in your
+browser.
 
 ---
 
