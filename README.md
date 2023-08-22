@@ -304,8 +304,8 @@ Show progress in `tkn` command line tool?
 We can connect to the queue manager using the MQ web console. The MQ operator
 has created two routes for the queue manager:
 
-- a route for applications and channels to connect to the queue manager
-- a route for users to connect to the web console
+* a route for applications and channels to connect to the queue manager
+* a route for users to connect to the web console
 
 Issue the following command:
 
@@ -323,6 +323,64 @@ mq01-ibm-mq-web   mq01-ibm-mq-web-mq01-dev.apps.sno-ajo-1.snoajo1.com          m
 
 You can connect to the web console using the `mq01-ibm-mq-web` hostname in your
 browser.
+
+---
+
+## Connect to IBM Licensing instance
+
+You can run an IBM Licensing report to show the deployed queue manager. When the
+IBM Licensing instance was created, it created a route to its web interface.
+Let's determine the address of the web interface and then use it to generate a
+report.
+
+```bash
+oc get route ibm-licensing-service-instance1 -n ibm-common-services
+```
+
+which will show the hostname for the licensing service web interface.
+
+```bash
+NAME                              HOST/PORT                                                                        PATH   SERVICES                          PORT       TERMINATION        WILDCARD
+ibm-licensing-service-instance1   ibm-licensing-service-instance1-ibm-common-services.apps.sno-ajo-1.snoajo1.com          ibm-licensing-service-instance1   api-port   passthrough/None   None
+
+```
+
+Use the host name in your browser to connect to the Licensing instance:
+
+![diagram5](./xdocs/images/diagram5.png)
+
+Notice how different reports are available to you.
+
+---
+
+## Generate a License report
+
+Let's generate a snapshot report that shows the IBM products currently running.
+You will need an authentication token to generate a report.
+
+Issue the following command:
+
+```bash
+oc get secret ibm-licensing-token -o jsonpath={.data.token} -n ibm-common-services | base64 -d; printf "\n"
+```
+
+to determine the authentication token, such as:
+
+```bash
+lWoOyrmrats4x0o5dTx6NXAe
+```
+
+* Click on `Snaphot` and paste the `Authentication token` determined above.
+
+Download the ZIP file, and examine the the available reports.
+
+For example the `products_daily_*` file might contain the following entry for our queue managers, indcating the usage over 2 successive days.
+
+```bash
+date	    name	        id	                                metricName          	metricQuantity	clusterId
+21/08/2023	IBM MQ Advanced	208423bb063c43288328b1d788745b0c	PROCESSOR_VALUE_UNIT	70	            sno.sno-ajo-1.snoajo1.com
+22/08/2023	IBM MQ Advanced	208423bb063c43288328b1d788745b0c	PROCESSOR_VALUE_UNIT	70           	sno.sno-ajo-1.snoajo1.com
+```
 
 ---
 
