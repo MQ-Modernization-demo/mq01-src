@@ -1,0 +1,102 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mq-tag
+  namespace: mq01-ci  
+  annotations:
+    description: Tags the git repository with the next version release value
+    app.openshift.io/description: Tags the git repository with the next version release value
+  labels:
+    version: 1.0.0
+spec:
+  params:
+    - name: GIT_USER_NAME
+      type: string
+      description: |
+        Git user name for performing git operation.
+      default: ""
+    - name: GIT_USER_EMAIL
+      type: string
+      description: |
+        Git user email for performing git operation.
+      default: ""
+    - name: userHome    
+      description: |
+        Absolute path to the user's home directory.
+      type: string
+      default: "/home/git" 
+    - name: gitInitImage
+      description: The image providing the git-init binary that this Task runs.
+      type: string
+      default: "gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.40.2"
+  workspaces:
+    - name: source
+      description: a workspace that contains the fetched git repository  
+    - name: basic-auth
+      optional: true
+      description: |
+        A Workspace containing a .gitconfig and .git-credentials file. These
+        will be copied to the user's home before any git commands are run. Any
+        other files in this Workspace are ignored. It is strongly recommended
+        to use ssh-directory over basic-auth whenever possible and to bind a
+        Secret to this Workspace over other volume types.
+  results:
+    - name: tag
+  steps:
+    - name: git-tag
+      image: "$(params.gitInitImage)"
+      # docker.io/alpine/git:v2.26.2@sha256:23618034b0be9205d9cc0846eb711b12ba4c9b468efdd8a59aac1d7b1a23363f #tag: v2.26.2
+      env: 
+      - name: PARAM_USER_HOME
+        value: $(params.userHome)
+      - name: WORKSPACE_BASIC_AUTH_DIRECTORY_BOUND
+        value: $(workspaces.basic-auth.bound)
+      - name: WORKSPACE_BASIC_AUTH_DIRECTORY_PATH
+        value: $(workspaces.basic-auth.path)
+      script: |
+        #!/bin/sh
+        set -ex
+
+        echo "hello from mq-tag task"
+        
+        # set up git credentials
+        if [ "${WORKSPACE_BASIC_AUTH_DIRECTORY_BOUND}" = "true" ] ; then
+          cp "${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/.git-credentials" "${PARAM_USER_HOME}/.git-credentials"
+          cp "${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/.gitconfig" "${PARAM_USER_HOME}/.gitconfig"
+          chmod 400 "${PARAM_USER_HOME}/.git-credentials"
+          chmod 400 "${PARAM_USER_HOME}/.gitconfig"
+        fi
+
+        # Setting up the config for the git.
+        git config --global user.email "$(params.GIT_USER_EMAIL)"
+        git config --global user.name "$(params.GIT_USER_NAME)"
+
+        # Navigate to workspace
+        cd $(workspaces.source.path)/repo/main
+
+        #Only works in bash
+        #echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
+        #git fetch --tags --prune --unshallow
+        #git describe --tag `git rev-parse HEAD`
+        #if [[ $(git describe --tag `git rev-parse HEAD`) =~ (^[0-9]+.[0-9]+.[0-9]+$) ]]; then
+        #    echo "Latest commit is already tagged"
+        #    NEW_TAG="$(git describe --abbrev=0 --tags)"
+        #    echo -n "${NEW_TAG}" | tee $(results.tag.path)
+        #    exit 0
+        #fi
+
+        # Generate new tag (increment previous patch number)
+        echo "Generating new tag"
+        git fetch --tags --prune --unshallow
+        NEW_TAG=`git describe --tags --abbrev=0 | awk -F. '{OFS="."; $NF+=1; print $0}'`
+        echo "New tag is "$NEW_TAG
+        git tag -a $NEW_TAG -m "increment version"
+        set +x
+        git push --tags -v
+        set -x
+
+        if [[ -z "${NEW_TAG}" ]]; then
+            echo "Error: NEW_TAG not defined"
+            exit 1
+        fi
+        echo -n "${NEW_TAG}" | tee $(results.tag.path)
