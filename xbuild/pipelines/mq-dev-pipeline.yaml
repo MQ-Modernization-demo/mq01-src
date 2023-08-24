@@ -45,8 +45,22 @@ spec:
       value: "main"
     - name: subdirectory
       value: repo/main
-  - name: build-image
+  - name: tag-image
     runAfter: ["clone-source"]
+    taskRef: 
+      name: mq-tag
+    workspaces:
+    - name: source
+      workspace: shared-data
+    - name: basic-auth
+      workspace: git-creds
+    params:      
+    - name: GIT_USER_NAME
+      value: $(params.git-user-name)
+    - name: GIT_USER_EMAIL
+      value: $(params.git-user-email)
+  - name: build-image
+    runAfter: ["tag-image"]
     taskRef:
       name: buildah
     workspaces:
