@@ -270,6 +270,7 @@ oc apply -f mq-dev-pipeline.yaml
 oc apply -f mq-store-yamls.yaml
 oc apply -f mq-build-image.yaml
 oc apply -f mq-test.yaml
+oc apply -f mq-tag.yaml
 ```
 
 ---
