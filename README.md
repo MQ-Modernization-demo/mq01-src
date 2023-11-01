@@ -136,49 +136,14 @@ Resolving deltas: 100% (4/4), done.
 
 ---
 
-## The source repository branches
+## The `mq01-src` repository
 
-The `mq01-src` repository holds both the development artifacts for the MQ
-queue manager `mq01` as well as the Tekton pipeline definition to build it.
-
-Issue the following commands to see these branches
-
-```bash
-git branch -r
-```
-
-which shows two branches (`HEAD` refers to the current branch):
-
-```bash
-origin/HEAD -> origin/main
-origin/main
-origin/pipelines
-```
-
-The source artifacts for `mq01` are held in the `main` branch. The `pipelines`
-branch holds the Tekton pipeline definitions used to build, test and version
-these artifacts.
-
----
-
-### The `main` branch
-
-The `main` branch folder structure of the `mq01-src` repository reflects the
-structure of the `mq01` queue manager.
-
-<br> There are three elements of the `mq01` virtual queue manageras shown
-in the following diagram:
-
-<img src="./xdocs/images/diagram4.drawio.png" alt="drawing" width="800"/>
-
-Note
-* `mq01` has a set of multi-protocol gateway definitions that are developed by a
-  user, each of which is specified in a gateway `local` folder.
-* Each gateway has a user specified configurations that is specified in a gateway
-  `.cfg` file.
-* `mq01` runs these gateways and configuration in a container that uses an image
-  based on binary code provided by IBM. We use a `Dockerfile` to identify the
-  precise version of this binary code.
+The structure of the `mq01-src` repository reflects the structure of the `mq01`
+queue manager. As we'll see, when built, each queue manager will map to a
+container in a pod, together with other associated artifacts. Other mappings are
+possible, for example a repository could define a queue manager cluster our
+repository is a good starting default upon which you can experiment, if ever
+required.
 
 Let's explore the repository to see this structure.
 
@@ -197,9 +162,13 @@ tree -L 1
 └── xdocs
 ```
 
-Notice the simplicity of this structure: a `LICENSE` file, this `README` and
-associated documentation in `xdocs`, together with three other folders; let's
-explore these `bin` and `config` and `user` folders a little more deeply.
+Notice the simplicity of this structure:
+* a `LICENSE` file
+* a `README.md` containing this tutorial, and its associated documentation and diagrams in the `xdocs` folder
+* a `bin` folder
+* a `config` folder
+* a `user` folder
+* a `xbuild` folder
 
 Issue the following command:
 
@@ -207,7 +176,7 @@ Issue the following command:
 tree bin config user
 ```
 
-which will show the structure of these folders:
+which will show the structure of the three most important folders:
 
 ```bash
 bin
@@ -227,11 +196,6 @@ user
 └── mqsc
     └── mq01.mqsc
 ```
-
-It makes sense for each queue manager to map to a container. It provides a
-natural unit for isolation, management and scaling. Other correspondences are of
-course possible (e.g. a queue manager cluster in a repository) but this is a
-good starting default upon which you can experiment, if necessary.
 
 Note:
 * The `bin` folder contains the exact version MQ image being used by `mq01` via the `Dockerfile`
