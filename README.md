@@ -204,14 +204,6 @@ Note:
 
 ---
 
-## Work on pipelines
-
-```bash
-git checkout pipelines
-```
-
----
-
 ## Login to cluster
 
 ```bash
@@ -223,7 +215,7 @@ oc login
 ## Locate MQ pipeline source
 
 ```bash
-cd $HOME/git/$GITORG-tutorial/mq01-src/pipelines/dev-build
+cd $HOME/git/$GITORG-tutorial/mq01-src/xbuild/pipelines/dev-build
 ls
 ```
 
