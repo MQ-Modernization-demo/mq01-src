@@ -193,6 +193,7 @@ tree -L 1
 ├── bin
 ├── config
 ├── user
+├── xbuild
 └── xdocs
 ```
 
@@ -212,6 +213,7 @@ which will show the structure of these folders:
 bin
 └── Dockerfile
 config
+├── mqs.ini
 ├── qm.ini
 ├── scripts
 │   ├── kustomization.yaml
@@ -219,18 +221,22 @@ config
 │   └── stop-mqsc.sh
 └── yamls
     ├── kustomization.yaml
-    └── qmgr.yaml
+    ├── mq01-cert.yaml
+    └── mq01-qmgr.yaml
 user
 └── mqsc
-    └── qmgr.mqsc
+    └── mq01.mqsc
 ```
 
+It makes sense for each queue manager to map to a container. It provides a
+natural unit for isolation, management and scaling. Other correspondences are of
+course possible (e.g. a queue manager cluster in a repository) but this is a
+good starting default upon which you can experiment, if necessary.
+
 Note:
-* It makes sense for each queue manager to map to a container. It provides a
-  natural unit for isolation, management and scaling. The `Dockerfile` in the
-  `bin` folder contains the exact version MQ image being used by `mq01`.
-* `config` folder
-* `user` folder
+* The `bin` folder contains the exact version MQ image being used by `mq01` via the `Dockerfile`
+* The `config` folder contains the configuration of the queue manager for example, `qm.ini` and `mqs.ini` configuration files.
+* The `user` folder contains the definitions in support of MQ applications connected to this queue manager, including MQ channel definitions.
 
 ---
 
