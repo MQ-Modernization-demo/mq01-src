@@ -47,18 +47,20 @@ spec:
       value: repo/main
   - name: tag-image
     runAfter: ["clone-source"]
-    taskRef: 
+    taskRef:
       name: mq-tag
     workspaces:
     - name: source
       workspace: shared-data
     - name: basic-auth
       workspace: git-creds
-    params:      
+    params:
     - name: GIT_USER_NAME
       value: $(params.git-user-name)
     - name: GIT_USER_EMAIL
       value: $(params.git-user-email)
+    - name: MQ_BASE_IMAGE
+      value: $(params.image-reference)
   - name: build-image
     runAfter: ["tag-image"]
     taskRef:
@@ -68,7 +70,7 @@ spec:
       workspace: shared-data
     params:
     - name: IMAGE
-      value: $(params.image-reference)
+      value: $(tasks.tag-image.results.image-reference)
     - name: DOCKERFILE
       value: $(params.dockerfile)
     - name: CONTEXT
@@ -85,6 +87,8 @@ spec:
     - name: source
       workspace: shared-data
     params:
+     - name: IMAGE
+       value: $(tasks.tag-image.results.image-reference)
   - name: test
     runAfter: ["gen-yamls"]
     taskRef:
@@ -96,7 +100,7 @@ spec:
   - name: clone-ops
     runAfter: ["test"]
     taskRef:
-      name: git-clone
+      name: mq-git-clone
     workspaces:
     - name: output
       workspace: shared-data

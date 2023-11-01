@@ -7,15 +7,21 @@ spec:
   workspaces:
     - name: source
       description: Generate Queue manager YAMLs
+  params:
+    - name: image
+      default: ""
   steps:
     - name: echo
+      env:
+      - name: IMAGE
+        value: $(params.image)
       image: alpine
       script: |
         #!/bin/sh
         echo "hello from mq-gen-yamls task"
 
         # install curl and openssl; they are not included in Alpine by default
-        apk update && apk add --no-cache curl openssl
+        apk update && apk add --no-cache curl openssl yq
 
         # install kubectl
         curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
@@ -30,8 +36,12 @@ spec:
         mkdir -p yamls
 
         # Copy simple YAMLs from source
-        cp config/yamls/mq01.yaml yamls/.
-        cp config/yamls/mq01-ingress.yaml yamls/.
+        cp config/yamls/mq01-qmgr.yaml yamls/.
+        cp config/yamls/mq01-cert.yaml yamls/.
+
+        # Update the Qmgr YAML with the tagged container image
+        echo "New image name is:" ${IMAGE}
+        yq -i '.spec.queueManager.image = env(IMAGE)' yamls/mq01-qmgr.yaml
 
         # Generate qm.ini and MQSC YAMLs
         kubectl create configmap mq01-ini -n mq01-dev --from-file=mq01.ini=config/qm.ini --dry-run=client -o yaml > yamls/mq01-ini.yaml
@@ -43,5 +53,3 @@ spec:
         # List YAMLs
         ls -alt yamls/*.yaml
         cat yamls/*.yaml
-
-
