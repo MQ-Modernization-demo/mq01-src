@@ -282,6 +282,10 @@ oc apply -f mq-tag.yaml
 
 ## Customize pipeline
 
+> **Note**<br>
+>
+> Fix this
+
 ```bash
 envsubst <mq-dev-pipelinerun.yaml > mq-dev-pipelinerun.yaml
 ```
