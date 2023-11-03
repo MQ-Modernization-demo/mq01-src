@@ -304,10 +304,21 @@ Issue the following command:
 ```bash
 envsubst < mq-dev-pipelinerun.yaml > pipefile.tmp && mv pipefile.tmp mq-dev-pipelinerun.yaml
 ```
+Verify that the `$GITORG` environment variable has been substituted by examining
+the source repository URL for example:
 
-
+```bash
+  - name: source-repo-url
+    value: https://github.com/mqorg-odowdaibm/mq01-src.git
+```
 
 ## Run pipeline
+
+Let's now run the pipeline. Each time we run the pipeline we get a new
+**pipelinerun** resource in Kubernetes; that's why we using the `create` rather
+than `apply` version of the command.
+
+Issue the following command:
 
 ```bash
 oc create -f mq-dev-pipelinerun.yaml
