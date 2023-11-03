@@ -56,32 +56,36 @@ This tutorial will walk you through the process of setting up this configuration
 
 ---
 
-## Recreating Environment Variables
+## Restarting the tutorial
 
 If you're doing this tutorial over an extended period, it may result in you
-using a different terminal session. In this case, don't forget to re-define the
-following environment variables:
+using a different terminal session. Don't forget to:
 
-```bash
-export GITUSER=<GitHub user name>
-export GITORG=mqorg-$GITUSER
-export GITTOKEN=<PAT copied from GitHub>
-export GITCONFIG=$(printf "[credential \"https://github.com\"]\n  helper = store")
-```
+* Re-define key environment variables:
+
+  ```bash
+  export GITUSER=<GitHub user name>
+  export GITORG=mqorg-$GITUSER
+  export GITTOKEN=<PAT copied from GitHub>
+  ```
+
+* Login to Kubernetes cluster
+
+  ```bash
+  oc login --token=sha256~noTAVal1dSHA --server=https://example.cloud.com:31428
+  ```
+
+  by selecting `Copy login command` from the OpenShift web console.
 
 ---
 
 ## Creating the `mq01-src` repository
 
-We use this [template
-repository](https://github.com/mq-modernization-demo/mq01-src) to create
-`mq01-src` in our new organization. Forking a template creates a repository with
-a clean git history, allowing us to track the history of changes to our queue
-manager `mq01` every time we update `mq01-src`.
-
-> **Note**<br>
->
-> Might need to add screenshot here
+We use a [template
+repository](https://github.com/mq-modernization-demo/mq01-src) to create a copy
+of `mq01-src` in our organization. Using a template repository results in our
+instance of `mq01-src` having a clean git history. It means that we can track
+the history of changes to our queue manager `mq01`.
 
 <br> Click on [this URL](https://github.com/mq-modernization-demo/mq01-src/generate) to fork
 from the `mq01-src` template repository:
@@ -139,11 +143,10 @@ Resolving deltas: 100% (4/4), done.
 ## The `mq01-src` repository
 
 The structure of the `mq01-src` repository reflects the structure of the `mq01`
-queue manager. As we'll see, when built, each queue manager will map to a
-container in a pod, together with other associated artifacts. Other mappings are
-possible, for example a repository could define a queue manager cluster our
-repository is a good starting default upon which you can experiment, if ever
-required.
+queue manager running in the cluster. Specifically, when built, this repository
+will result in the creation of a container running the `mq01` queue manager in a
+Kubernetes pod, together with other associated Kubernetes artifacts, such as the
+secret that holds the Queue managers X.509 certificate.
 
 Let's explore the repository to see this structure.
 
@@ -202,22 +205,55 @@ Note:
 * The `config` folder contains the configuration of the queue manager for example, `qm.ini` and `mqs.ini` configuration files.
 * The `user` folder contains the definitions in support of MQ applications connected to this queue manager, including MQ channel definitions.
 
----
-
-## Login to cluster
-
-```bash
-oc login
-```
+Of course, other repository mappings are possible -- for example a repository
+could define a queue manager cluster rather than a single queue manager.
+However, the above structure is a great starting point for your learning and any
+experimentation you might want to do in the future.
 
 ---
 
-## Locate MQ pipeline source
+## MQ build pipeline
+
+To build, test, version and create the image for the `mq01` queue manager, we're
+going to use a set of Tekton tasks combined into a Tekton pipeline. Each task
+will perform a specific function such as building the queue manager container
+image, or testing it. Let's have a quick look at the Tekton artifacts:
+
+Issue the following command:
 
 ```bash
 cd $HOME/git/$GITORG-tutorial/mq01-src/xbuild/pipelines/dev-build
-ls
+tree
 ```
+
+which will show the Tekton YAMLs:
+
+```bash
+.
+├── mq-build-image.yaml
+├── mq-clone.yaml
+├── mq-dev-pipeline.yaml
+├── mq-dev-pipelinerun.yaml
+├── mq-gen-yamls.yaml
+├── mq-push.yaml
+├── mq-store-yamls.yaml
+├── mq-tag.yaml
+└── mq-test.yaml
+```
+
+You can examine these YAMLs to see how they work; here's a brief outline:
+
+* `mq-dev-pipeline.yaml` defines a Tekton pipeline comprising the following tasks:
+  * `mq-clone.yaml` defines a Tekton task to clone the `mq01-src` queue manager source repository.
+  * `mq-tag.yaml` creates a version for this change based on the git tag, that can be used by other tasks.
+  * `mq-build-image.yaml` builds a versioned image using the cloned repository and stores in the image registry.
+  * `mq-gen-yamls.yaml` generates the Kubernetes YAMLs for the queue manager, including secrets and config maps.
+  * `mq-test.yaml` tests the queue manager.
+  * `mq-store-yamls.yaml` stores the YAMLs used to test the queue manager.
+  * `mq-push.yaml` pushes the YAMLs to the `mq01-ops` repository, ready for deployment by ArgoCD.
+* `mq-dev-pipelinerun.yaml` runs the pipeline to build the queue manager.
+
+We'll now install and run this Tekton pipeline.
 
 ---
 
