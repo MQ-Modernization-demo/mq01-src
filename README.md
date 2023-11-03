@@ -146,7 +146,7 @@ The structure of the `mq01-src` repository reflects the structure of the `mq01`
 queue manager running in the cluster. Specifically, when built, this repository
 will result in the creation of a container running the `mq01` queue manager in a
 Kubernetes pod, together with other associated Kubernetes artifacts, such as the
-secret that holds the Queue managers X.509 certificate.
+secret that holds the queue manager's X.509 certificate.
 
 Let's explore the repository to see this structure.
 
@@ -259,6 +259,11 @@ We'll now install and run this Tekton pipeline.
 
 ## Create cluster pipeline resources
 
+Let's deploy these Tekton artifacts to the cluster so that we can use them to
+build the `mq01` queue manager.
+
+Issue the following command:
+
 ```bash
 oc apply -f mq-clone.yaml
 oc apply -f mq-gen-yamls.yaml
@@ -270,17 +275,36 @@ oc apply -f mq-test.yaml
 oc apply -f mq-tag.yaml
 ```
 
+which will generate responses similar to these:
+
+```bash
+task.tekton.dev/mq-git-clone configured
+task.tekton.dev/mq-gen-yamls configured
+task.tekton.dev/git-cli configured
+pipeline.tekton.dev/mq-dev-pipeline configured
+task.tekton.dev/mq-store-yamls configured
+task.tekton.dev/buildah configured
+task.tekton.dev/mq-test configured
+task.tekton.dev/mq-tag configured
+```
+
+We're now ready to build our queue manager.
+
 ---
 
 ## Customize pipeline
 
-> **Note**<br>
->
-> Fix this
+Before we can run the Tekton pipeline to build the queue manager, we need to
+customize the `mq-dev-pipelinerun.yaml` file that will run the pipeline on the
+source repository identified by our `$GITORG` environment variable. Feel free to
+inspect this YAML file before and after the customization below.
+
+Issue the following command:
 
 ```bash
-envsubst <mq-dev-pipelinerun.yaml > mq-dev-pipelinerun.yaml
+envsubst < mq-dev-pipelinerun.yaml > pipefile.tmp && mv pipefile.tmp mq-dev-pipelinerun.yaml
 ```
+
 
 
 ## Run pipeline
@@ -376,7 +400,7 @@ lWoOyrmrats4x0o5dTx6NXAe
 
 Download the ZIP file, and examine the the available reports.
 
-For example the `products_daily_*` file might contain the following entry for our queue managers, indcating the usage over 2 successive days.
+For example the `products_daily_*` file might contain the following entry for our queue managers, indicating the usage over 2 successive days.
 
 ```bash
 date	    name	        id	                                metricName          	metricQuantity	clusterId
