@@ -29,7 +29,7 @@ platform engineering with MQ in a Kubernetes environment.
 
 The following diagram shows a CICD pipeline for MQ:
 
-![diagram1](./xdocs/images/diagram1.drawio.png)
+<img src="./xdocs/images/diagram1.drawio.png" alt="drawing" width="800" border="1"/>
 
 Notice:
 
@@ -90,11 +90,7 @@ the history of changes to our queue manager `mq01`.
 <br> Click on [this URL](https://github.com/mq-modernization-demo/mq01-src/generate) create
 a fresh copy of `mq01-src`:
 
----
-
-<img src="./xdocs/images/diagram2.png" alt="drawing" width="800"/>
-
----
+<img src="./xdocs/images/diagram2.png" alt="drawing" width="800" border="1"/>
 
 Substitute the relevant properties for your copy of `mq01-src`, specifically:
 
@@ -105,11 +101,7 @@ Substitute the relevant properties for your copy of `mq01-src`, specifically:
 
 <br> Click on `Create repository`. The repository will be cloned to the specified GitHub account:
 
----
-
-<img src="./xdocs/images/diagram3.png" alt="drawing" width="800"/>
-
----
+<img src="./xdocs/images/diagram3.png" alt="drawing" width="800" border="1"/>
 
 <br> You have successfully created a copy of the `mq01-src` repository in your
 organization.
@@ -427,7 +419,7 @@ ibm-licensing-service-instance1   ibm-licensing-service-instance1-ibm-common-ser
 
 Use the host name in your browser to connect to the Licensing instance:
 
-![diagram5](./xdocs/images/diagram5.png)
+<img src="./xdocs/images/diagram5.png" alt="drawing" width="800" border="1"/>
 
 Notice how different reports are available to you.
 
