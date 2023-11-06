@@ -87,33 +87,36 @@ of `mq01-src` in our organization. Using a template repository results in our
 instance of `mq01-src` having a clean git history. It means that we can track
 the history of changes to our queue manager `mq01`.
 
-<br> Click on [this URL](https://github.com/mq-modernization-demo/mq01-src/generate) to fork
-from the `mq01-src` template repository:
+<br> Click on [this URL](https://github.com/mq-modernization-demo/mq01-src/generate) create
+a fresh copy of `mq01-src`:
+
+---
 
 <img src="./xdocs/images/diagram2.png" alt="drawing" width="800"/>
 
-This screen allows you to define the properties for you copy of the `mq01-src`
-repository.
+---
 
-Specifically:
+Substitute the relevant properties for your copy of `mq01-src`, specifically:
 
 * In the `Owner` dropdown, select your recently created organization, e.g. `mqorg-xxxxx`
 * In the `Repository name` field, specify `mq01-src`.
 * In the `Description` field, specify `Source repository for mq01 queue manager`.
 * Select `Public` for the repository visibility.
-* Select `Include all branches`.
 
-<br> Click on `Create repository from template`:
+<br> Click on `Create repository`. The repository will be cloned to the specified GitHub account:
 
-<br> This repository will be cloned to the specified GitHub account:
+---
+
 <img src="./xdocs/images/diagram3.png" alt="drawing" width="800"/>
+
+---
 
 <br> You have successfully created a copy of the `mq01-src` repository in your
 organization.
 
 ---
 
-## Clone repository to your local machine
+## Clone `mq01-src` to your local machine
 
 We're going to use the contents of the `mq01-src` repository to build the `mq01`
 queue manager. First we need to clone this repository to our local machine.
@@ -138,21 +141,29 @@ Receiving objects: 100% (69/69), 390.75 KiB | 1.01 MiB/s, done.
 Resolving deltas: 100% (4/4), done.
 ```
 
+You now have a local copy that you can work with on your local machine.
+
 ---
 
 ## The `mq01-src` repository
 
 The structure of the `mq01-src` repository reflects the structure of the `mq01`
-queue manager running in the cluster. Specifically, when built, this repository
-will result in the creation of a container running the `mq01` queue manager in a
-Kubernetes pod, together with other associated Kubernetes artifacts, such as the
-secret that holds the queue manager's X.509 certificate.
+queue manager running in the cluster. When used in the continuous integration
+(CI) pipeline, this contents of this repository define a container running the
+`mq01` queue manager in a Kubernetes pod, together with all associated
+Kubernetes artifacts, such as the secret that holds the queue manager's X.509
+certificate. This is what it means to have **infrastructure as code**;
+everything about `mq01` is in this git repository.
 
-Let's explore the repository to see this structure.
+Let's explore the repository structure.
+
+Issue the following command to see the top level folder structure.
 
 ```bash
 tree -L 1
 ```
+
+which shows a simple list of files and folders:
 
 ```bash
 .
@@ -165,13 +176,13 @@ tree -L 1
 └── xdocs
 ```
 
-Notice the simplicity of this structure:
+The files are simple to understand:
 * a `LICENSE` file
 * a `README.md` containing this tutorial, and its associated documentation and diagrams in the `xdocs` folder
-* a `bin` folder
-* a `config` folder
-* a `user` folder
-* a `xbuild` folder
+
+There is also a set of folders that hold the queue manager configuration, `bin`,
+`config` and `user`, and a fold containing the continuous integration build
+pipeline `xbuild`.
 
 Issue the following command:
 
@@ -202,8 +213,10 @@ user
 
 Note:
 * The `bin` folder contains the exact version MQ image being used by `mq01` via the `Dockerfile`
-* The `config` folder contains the configuration of the queue manager for example, `qm.ini` and `mqs.ini` configuration files.
-* The `user` folder contains the definitions in support of MQ applications connected to this queue manager, including MQ channel definitions.
+* The `config` folder contains the configuration of the queue manager for
+  example, `qm.ini` and `mqs.ini` configuration files.
+* The `user` folder contains the definitions in support of MQ applications
+  connected to this queue manager, including MQ channel definitions.
 
 Of course, other repository mappings are possible -- for example a repository
 could define a queue manager cluster rather than a single queue manager.
@@ -217,7 +230,10 @@ experimentation you might want to do in the future.
 To build, test, version and create the image for the `mq01` queue manager, we're
 going to use a set of Tekton tasks combined into a Tekton pipeline. Each task
 will perform a specific function such as building the queue manager container
-image, or testing it. Let's have a quick look at the Tekton artifacts:
+image, or testing it.
+
+These artifacts are help in the `xbuild` folder; let's have a quick look at
+them:
 
 Issue the following command:
 
@@ -245,15 +261,18 @@ You can examine these YAMLs to see how they work; here's a brief outline:
 
 * `mq-dev-pipeline.yaml` defines a Tekton pipeline comprising the following tasks:
   * `mq-clone.yaml` defines a Tekton task to clone the `mq01-src` queue manager source repository.
-  * `mq-tag.yaml` creates a version for this change based on the git tag, that can be used by other tasks.
-  * `mq-build-image.yaml` builds a versioned image using the cloned repository and stores in the image registry.
-  * `mq-gen-yamls.yaml` generates the Kubernetes YAMLs for the queue manager, including secrets and config maps.
+  * `mq-tag.yaml` creates a version for this change based on the git tag, that
+    can be used by other tasks.
+  * `mq-build-image.yaml` builds a versioned image using the cloned repository
+    and stores in the image registry.
+  * `mq-gen-yamls.yaml` generates the Kubernetes YAMLs for the queue manager,
+    including secrets and config maps.
   * `mq-test.yaml` tests the queue manager.
   * `mq-store-yamls.yaml` stores the YAMLs used to test the queue manager.
   * `mq-push.yaml` pushes the YAMLs to the `mq01-ops` repository, ready for deployment by ArgoCD.
 * `mq-dev-pipelinerun.yaml` runs the pipeline to build the queue manager.
 
-We'll now install and run this Tekton pipeline.
+Let's now install and run this Tekton pipeline.
 
 ---
 
@@ -288,16 +307,16 @@ task.tekton.dev/mq-test configured
 task.tekton.dev/mq-tag configured
 ```
 
-We're now ready to build our queue manager.
+We now have a Tekton pipeline that we can use to build our queue manager, `mq01`.
 
 ---
 
 ## Customize pipeline
 
 Before we can run the Tekton pipeline to build the queue manager, we need to
-customize the `mq-dev-pipelinerun.yaml` file that will run the pipeline on the
-source repository identified by our `$GITORG` environment variable. Feel free to
-inspect this YAML file before and after the customization below.
+customize the **pipelinerun** YAML using our previously defined `$GITORG`
+environment variable. Feel free to inspect the `mq-dev-pipelinerun.yaml` YAML
+file before and after the customization step shown below.
 
 Issue the following command:
 
@@ -311,6 +330,10 @@ the source repository URL for example:
   - name: source-repo-url
     value: https://github.com/mqorg-odowdaibm/mq01-src.git
 ```
+
+In this example, we can see how the `mq01-src` repository in the `mqorg-odowdaibm` will be used to build our version of the `mq01` queue manager.
+
+---
 
 ## Run pipeline
 
@@ -333,6 +356,7 @@ pipelinerun.tekton.dev/mq-dev-pipeline-run-cmm7q created
 Notice how each **pipelinerun** has a unique name generated by the addition of a
 suffix, `cmm7q` in this case.
 
+---
 
 ## Monitoring progress in the web console
 
