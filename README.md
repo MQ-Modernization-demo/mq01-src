@@ -419,7 +419,7 @@ ibm-licensing-service-instance1   ibm-licensing-service-instance1-ibm-common-ser
 
 Use the host name in your browser to connect to the Licensing instance:
 
-<img src="./xdocs/images/diagram5.png" alt="drawing" width="800" border="1"/>
+<img src="./xdocs/images/diagram5.png" alt="drawing" width="400" border="1"/>
 
 Notice how different reports are available to you.
 
