@@ -55,7 +55,7 @@ spec:
     availability:
       type: SingleInstance
     storage:
-      defaultClass: lvms-vg1
+      defaultClass: default
       queueManager:
         type: persistent-claim
       persistedData:
