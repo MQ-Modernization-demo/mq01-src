@@ -1,0 +1,21 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  labels:
+    app: mq-event-listener
+  name: mq-event-listener
+  namespace: mq01-ci
+spec:
+  serviceAccountName: pipeline
+  triggers:
+  - name: mq-dev
+    interceptors:
+      - ref:
+          name: "cel"
+        params:
+        - name: "filter"
+          value: "header.match('X-GitHub-Event', 'push') && body.ref == 'refs/heads/main' && body.repository.full_name == '$GITORG/mq01-src'"
+    bindings:
+      - ref: mq-trigger-binding
+    template:
+      ref: mq-trigger-template

@@ -1,0 +1,20 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: mq-event-listener
+  namespace: mq01-ci
+  labels:
+    app: mq-event-listener
+    app.kubernetes.io/managed-by: EventListener
+    app.kubernetes.io/part-of: Triggers
+    eventlistener: mq-event-listener
+  annotations:
+    openshift.io/host.generated: 'true'
+spec:
+  to:
+    kind: Service
+    name: mq-event-listener
+    weight: 100
+  port:
+    targetPort: http-listener
+  wildcardPolicy: None

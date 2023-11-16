@@ -460,6 +460,20 @@ date	    name	        id	                                metricName          	me
 
 Well done! You have successfully completed this tutorial. You have
 
-* Configured a Kubernetes cluster for Platform Engineering including CICD and GitOps.
+* Configured a Kubernetes cluster for Platform Engineering including CICD and
+  GitOps.
 * Built and deployed a queue manager, deployed it, and interacted with it.
+
+---
+
+## Extending the tutorial
+
+Now that you have a working MQ deployment running in Kubernetes, you add to it in multiple ways:
+
+* [Continuous integration with Tekton triggers](./xdocs/extra/tutorial2.md)
+
+* [Monitoring with Prometheus and Grafana](./xdocs/extra/tutorial3.md) (**TBD**)
+
+
+
 
