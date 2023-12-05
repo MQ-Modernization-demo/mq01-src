@@ -170,19 +170,17 @@ which shows a simple list of files and folders:
 
 The files are simple to understand:
 * a `LICENSE` file
-* a `README.md` containing this tutorial, and its associated documentation and diagrams in the `xdocs` folder
+* a `README.md` containing this tutorial, with its associated documentation and
+  diagrams in the `xdocs` folder
 
-There is also a set of folders that hold the queue manager configuration, `bin`,
-`config` and `user`, and a fold containing the continuous integration build
-pipeline `xbuild`.
-
-Issue the following command:
+Let's now look at the structure of the three most important folders. Issue the
+following command:
 
 ```bash
 tree bin config user
 ```
 
-which will show the structure of the three most important folders:
+which will show their hierarchical structure:
 
 ```bash
 bin
@@ -204,11 +202,14 @@ user
 ```
 
 Note:
-* The `bin` folder contains the exact version MQ image being used by `mq01` via the `Dockerfile`
+* The `bin` folder contains the exact version IBM MQ image being used by `mq01` via the `Dockerfile`
 * The `config` folder contains the configuration of the queue manager for
   example, `qm.ini` and `mqs.ini` configuration files.
-* The `user` folder contains the definitions in support of MQ applications
-  connected to this queue manager, including MQ channel definitions.
+* The `user` folder contains the queue and channel definitions in support of MQ applications
+  connected to this queue manager, in MQSC files.
+
+Finally, the `xbuild` folder contains the continuous integration pipeline that
+will build, test, version and store the `mq01` container and associated YAMLs.
 
 Of course, other repository mappings are possible -- for example a repository
 could define a queue manager cluster rather than a single queue manager.
