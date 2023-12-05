@@ -225,7 +225,7 @@ going to use a set of Tekton tasks combined into a Tekton pipeline. Each task
 will perform a specific function such as building the queue manager container
 image, or testing it.
 
-These artifacts are help in the `xbuild` folder; let's have a quick look at
+These artifacts are held in the `xbuild` folder; let's have a quick look at
 them:
 
 Issue the following command:
@@ -254,7 +254,8 @@ which will show the Tekton YAMLs:
 You can examine these YAMLs to see how they work; here's a brief outline:
 
 * `mq-dev-pipeline.yaml` defines a Tekton pipeline comprising the following tasks:
-  * `mq-clone.yaml` defines a Tekton task to clone the `mq01-src` queue manager source repository.
+  * `mq-clone.yaml` defines a Tekton task to clone the `mq01-src` queue manager
+    source repository.
   * `mq-tag.yaml` creates a version for this change based on the git tag, that
     can be used by other tasks.
   * `mq-build-image.yaml` builds a versioned image using the cloned repository
@@ -263,7 +264,8 @@ You can examine these YAMLs to see how they work; here's a brief outline:
     including secrets and config maps.
   * `mq-test.yaml` tests the queue manager.
   * `mq-store-yamls.yaml` stores the YAMLs used to test the queue manager.
-  * `mq-push.yaml` pushes the YAMLs to the `mq01-ops` repository, ready for deployment by ArgoCD.
+  * `mq-push.yaml` pushes the YAMLs to the `mq01-ops` repository, ready for
+    deployment by ArgoCD.
 * `mq-dev-pipelinerun.yaml` runs the pipeline to build the queue manager.
 * the `extra-tutorials` folder contains YAMLs for follow-up topics including
   automatic CI and monitoring.
@@ -309,17 +311,18 @@ We now have a Tekton pipeline that we can use to build our queue manager, `mq01`
 
 ## Customize pipeline
 
-Before we can run the Tekton pipeline to build the queue manager, we need to
+Before we can run this pipeline to build the queue manager, we need to
 customize the **pipelinerun** YAML using our previously defined `$GITORG`
 environment variable.
 
-Let's inspect the `mq-dev-pipelinerun.yaml` YAML that runs the pipeline to build the `mq01` queue manager.
+Let's inspect the `mq-dev-pipelinerun.yaml` YAML that runs the pipeline to build
+the `mq01` queue manager.
 
 ```bash
 cat mq-dev-pipelinerun.yaml
 ```
 which will show its YAML:
-(we've shown the relevant section)
+(we've shown only the relevant YAML sections)
 
 ```yaml
 apiVersion: tekton.dev/v1beta1
@@ -354,7 +357,8 @@ spec:
 
 See how the `source-repo-url` pipeline parameter identifies the source
 repository for `mq01`, and how `ops-repo-url` and `image-reference` identify
-where the successfully tested YAMLs and container images are stored.
+where the successfully tested YAMLs and container images are stored,
+respectively.
 
 Issue the following command to configure the `pipelinerun` with your `$GITORG`:
 
@@ -362,8 +366,8 @@ Issue the following command to configure the `pipelinerun` with your `$GITORG`:
 envsubst < mq-dev-pipelinerun.yaml > pipefile.tmp && mv pipefile.tmp mq-dev-pipelinerun.yaml
 ```
 
-Verify that the `$GITORG` environment variable has been substituted by examining
-the source repository URL for example:
+Verify that the `$GITORG` environment variable has been substituted by
+re-examining the customized YAML:
 
 ```bash
   - name: source-repo-url
