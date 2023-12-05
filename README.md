@@ -311,14 +311,57 @@ We now have a Tekton pipeline that we can use to build our queue manager, `mq01`
 
 Before we can run the Tekton pipeline to build the queue manager, we need to
 customize the **pipelinerun** YAML using our previously defined `$GITORG`
-environment variable. Feel free to inspect the `mq-dev-pipelinerun.yaml` YAML
-file before and after the customization step shown below.
+environment variable.
 
-Issue the following command:
+Let's inspect the `mq-dev-pipelinerun.yaml` YAML that runs the pipeline to build the `mq01` queue manager.
+
+```bash
+cat mq-dev-pipelinerun.yaml
+```
+which will show its YAML:
+(we've shown the relevant section)
+
+```yaml
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: mq-dev-pipeline-run-
+  namespace: mq01-ci
+spec:
+  serviceAccountName: pipeline
+  pipelineRef:
+    name: mq-dev-pipeline
+...
+  params:
+  - name: source-repo-url
+    value: https://github.com/$GITORG/mq01-src.git
+  - name: dockerfile
+    value: $(workspaces.source.path)/repo/main/bin/Dockerfile
+  - name: ops-repo-url
+    value: https://github.com/$GITORG/mq01-ops.git
+  - name: image-reference
+    value: image-registry.openshift-image-registry.svc:5000/mq01-ci/mq01
+  - name: storage-driver
+    value: vfs
+  - name: tls-verify
+    value: "false"
+  - name: git-user-name
+    value: "odowdaibm"
+  - name: git-user-email
+    value: "a_o-dowd@uk.ibm.com"
+...
+```
+
+See how the `source-repo-url` pipeline parameter identifies the source
+repository for `mq01`, and how `ops-repo-url` and `image-reference` identify
+where the successfully tested YAMLs and container images are stored.
+
+Issue the following command to configure the `pipelinerun` with your `$GITORG`:
 
 ```bash
 envsubst < mq-dev-pipelinerun.yaml > pipefile.tmp && mv pipefile.tmp mq-dev-pipelinerun.yaml
 ```
+
 Verify that the `$GITORG` environment variable has been substituted by examining
 the source repository URL for example:
 
@@ -327,7 +370,8 @@ the source repository URL for example:
     value: https://github.com/mqorg-odowdaibm/mq01-src.git
 ```
 
-In this example, we can see how the `mq01-src` repository in the `mqorg-odowdaibm` will be used to build our version of the `mq01` queue manager.
+In this example, we can see how the `mq01-src` repository in the
+`mqorg-odowdaibm` will be used to build our version of the `mq01` queue manager.
 
 ---
 
