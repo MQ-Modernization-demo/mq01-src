@@ -232,13 +232,14 @@ Issue the following command:
 
 ```bash
 cd $HOME/git/$GITORG-tutorial/mq01-src/xbuild/pipelines/dev-build
-tree
+tree -L 1
 ```
 
 which will show the Tekton YAMLs:
 
 ```bash
 .
+├── extra-tutorials
 ├── mq-build-image.yaml
 ├── mq-clone.yaml
 ├── mq-dev-pipeline.yaml
@@ -264,8 +265,10 @@ You can examine these YAMLs to see how they work; here's a brief outline:
   * `mq-store-yamls.yaml` stores the YAMLs used to test the queue manager.
   * `mq-push.yaml` pushes the YAMLs to the `mq01-ops` repository, ready for deployment by ArgoCD.
 * `mq-dev-pipelinerun.yaml` runs the pipeline to build the queue manager.
+* the `extra-tutorials` folder contains YAMLs for follow-up topics including
+  automatic CI and monitoring.
 
-Let's now install and run this Tekton pipeline.
+Let's now install and run the Tekton pipeline to build the queue manager `mq01`.
 
 ---
 
