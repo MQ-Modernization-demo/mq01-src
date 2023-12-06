@@ -402,24 +402,39 @@ suffix, `cmm7q` in this case.
 
 ---
 
-## Monitoring progress in the web console
+## Monitoring pipeline progress
 
-You can watch the pipelinerun proceed in the web console.
+You can watch the `pipelinerun` proceed in the web console.
 
+Select `Pipelines->Pipelines` from the navigation pane and click on your
+`pipelinerun` to see its progress.
+
+<img src="./xdocs/images/diagram7.png" alt="drawing" width="800" border="1"/>
+
+Notice you can see the different **tasks** in the pipeline, such as
+`clone-source` or `store-yamls`. You can select these tasks and see how they
+proceed -- each task will write information messages to the console as they run,
+allowing you to link back to the task script, if you need to understand how they
+are coded for example.
 
 ---
 
 ## Monitoring progress in the Tekton command line
 
-Show progress in `tkn` command line tool?
+You can also use the `tkn` command line tool to view the logs from the terminal.
 
 In the following command replace `xxxxx` with the new pipeline run identifier:
 
 ```bash
-tkn pipelinerun logs mq-dev-pipeline-run-xxxxx -n mq01-dev -f
+tkn pipelinerun logs mq-dev-pipeline-run-xxxxx -n mq01-ci -f
 ```
 
-showing the progress as follows:
+This will show the progress of the pipeline, for example:
+
+```bash
+Pipeline still running ...
+PipelineRun is still running: Tasks Completed: 1 (Failed: 0, Cancelled 0), Incomplete: 7, Skipped: 0
+```
 
 ---
 
@@ -447,6 +462,7 @@ mq01-ibm-mq-web   mq01-ibm-mq-web-mq01-dev.apps.sno-ajo-1.snoajo1.com          m
 
 You can connect to the web console using the `mq01-ibm-mq-web` hostname in your
 browser.
+
 
 ---
 
