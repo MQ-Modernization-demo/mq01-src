@@ -438,6 +438,12 @@ PipelineRun is still running: Tasks Completed: 1 (Failed: 0, Cancelled 0), Incom
 
 ---
 
+## Ensure queue manager is deployed using ArgoCD
+
+TBD...
+
+---
+
 ## Interact with Queue manager
 
 We can connect to the queue manager using the MQ web console. The MQ operator
@@ -446,23 +452,27 @@ has created two routes for the queue manager:
 * a route for applications and channels to connect to the queue manager
 * a route for users to connect to the web console
 
-Issue the following command:
+Issue the following command to get the route for the MQ web console:
 
 ```bash
-oc get route -n mq01-dev
+oc get route mq01-ibm-mq-web -n mq01-dev -o jsonpath='{"https://"}{.spec.host}{"\n"}'
 ```
 
-which shows these two routes:
+which shows the route, for example:
 
 ```bash
-NAME              HOST/PORT                                             PATH   SERVICES      PORT   TERMINATION   WILDCARD
-mq01-ibm-mq-qm    mq01-ibm-mq-qm-mq01-dev.apps.sno-ajo-1.snoajo1.com           mq01-ibm-mq   1414   passthrough   None
-mq01-ibm-mq-web   mq01-ibm-mq-web-mq01-dev.apps.sno-ajo-1.snoajo1.com          mq01-ibm-mq   9443   passthrough   None
+https://mq01-ibm-mq-web-mq01-dev.apps.ajoclus02.snoajo2.com
 ```
 
-You can connect to the web console using the `mq01-ibm-mq-web` hostname in your
-browser.
+You can connect to the web console using your browser. You may need to add
+(e.g.) `mq01-ibm-mq-web-mq01-dev.apps.ajoclus02.snoajo2.com` to your
+`/etc/hosts` file of your local machine.
 
+Login to the console using:
+* `username:` `admin`
+* `password:` `passw0rd`
+
+Feel free to explore the web console.
 
 ---
 
