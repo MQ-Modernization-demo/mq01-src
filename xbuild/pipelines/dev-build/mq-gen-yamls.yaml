@@ -8,13 +8,13 @@ spec:
     - name: source
       description: Generate Queue manager YAMLs
   params:
-    - name: image
+    - name: IMAGE
       default: ""
   steps:
     - name: echo
       env:
       - name: IMAGE
-        value: $(params.image)
+        value: $(params.IMAGE)
       image: alpine
       script: |
         #!/bin/sh
