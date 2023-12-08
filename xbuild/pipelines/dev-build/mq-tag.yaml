@@ -2,7 +2,7 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: mq-tag
-  namespace: mq01-ci  
+  namespace: mq01-ci
   annotations:
     description: Tags the git repository with the next version release value
     app.openshift.io/description: Tags the git repository with the next version release value
@@ -20,11 +20,11 @@ spec:
       description: |
         Git user email for performing git operation.
       default: ""
-    - name: userHome    
+    - name: userHome
       description: |
         Absolute path to the user's home directory.
       type: string
-      default: "/home/git" 
+      default: "/home/git"
     - name: gitInitImage
       description: The image providing the git-init binary that this Task runs.
       type: string
@@ -35,7 +35,7 @@ spec:
       default: "default-image"
   workspaces:
     - name: source
-      description: a workspace that contains the fetched git repository  
+      description: a workspace that contains the fetched git repository
     - name: basic-auth
       optional: true
       description: |
@@ -50,7 +50,7 @@ spec:
   steps:
     - name: git-tag
       image: "$(params.gitInitImage)"
-      env: 
+      env:
       - name: PARAM_USER_HOME
         value: $(params.userHome)
       - name: WORKSPACE_BASIC_AUTH_DIRECTORY_BOUND
@@ -64,7 +64,7 @@ spec:
         set -ex
 
         echo "hello from mq-tag task"
-        
+
         # Check input image
         echo "Base image reference:" ${MQ_BASE_IMAGE}
         echo "Param user home:" ${PARAM_USER_HOME}
@@ -86,10 +86,10 @@ spec:
         cd $(workspaces.source.path)/repo/main
 
         # Converted to /bin/sh
-        echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
-        git fetch --tags --prune --unshallow
+        echo "Current branch: "$(git rev-parse --abbrev-ref HEAD)
+        git fetch --tags
         tagdesc=$(git describe --tag `git rev-parse HEAD`)
-        if [ $tagdesc ]; then
+        if echo $tagdesc | grep -Eq '^[0-9]+.[0-9]+.[0-9]+$'; then
             echo "Latest commit is already tagged"
             NEW_TAG=$(git describe --abbrev=0 --tags)
             echo -n "${NEW_TAG}" | tee $(results.tag.path)

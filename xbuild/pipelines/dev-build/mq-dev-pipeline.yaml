@@ -45,6 +45,8 @@ spec:
       value: "main"
     - name: subdirectory
       value: repo/main
+    - name: depth
+      value: "0"
   - name: tag-image
     runAfter: ["clone-source"]
     taskRef:
