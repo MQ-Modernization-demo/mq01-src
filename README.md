@@ -438,9 +438,122 @@ PipelineRun is still running: Tasks Completed: 1 (Failed: 0, Cancelled 0), Incom
 
 ---
 
-## Ensure queue manager is deployed using ArgoCD
+## Exploring the pipelinerun results
 
-TBD...
+When the pipeline run is finished, there will be new YAMLs in the `mq01-ops`
+repository and a matching image in the image registry.
+
+Select `Build->ImageStreams` from the navigation pane and click on the `mq01`
+**imagestream** in the `m01-ci` namespace to see the container image that has
+been built:
+
+<img src="./xdocs/images/diagram8.png" alt="drawing" width="800" border="1"/>
+
+<br>
+
+Note that every time an image is built, it will be tagged with a version string.
+In the example, we can see image `mq01:0.0.1` has been built by the pipeline;
+version `0.0.2` will be the next image built by it, and so on. We can also see
+the time when the image was built.
+
+This image will be referenced by the `mq01` **queuemanager** custom resource
+that the **pipelinerun** has also built and stored in the `mq01-ops` repository.
+Let's have a look at these resources in GitHub.
+
+Issue the following command to determine the URL for your `mq01-ops` repository
+where your CRs for `mq01` are held:
+
+```bash
+echo https://github.com/$GITORG/mq01-ops/tree/main/environments/dev/mq01
+```
+
+Paste the generated URL into your browser to see the structure of the `mq01-ops`
+repository:
+
+<img src="./xdocs/images/diagram9.png" alt="drawing" width="800" border="1"/>
+
+<br>
+
+Notes:
+* See how the URL refers to the `dev` environment.
+* See how there are 4 YAMLs, each named according to the resource they define:
+  * `mq01-qmgr.yaml` queue manager definition for `mq01`
+  * `mq01-cert.yaml` X.509 digital certificate for `mq01`
+  * `mq01-ini.yaml` mq.ini file for `mq01`
+  * `mq01-mqsc.yaml` MQSC file for `mq01`
+
+If you examine `mq01-qmgr.yaml` you will see how the `mq01` CR refers to the other CRs.
+
+For example, the `mq01` YAML:
+
+```yaml
+mqsc:
+  - configMap:
+      name: mq01-mqsc
+      items:
+        - mq01.mqsc
+ini:
+  - configMap:
+      name: mq01-ini
+      items:
+        - mq01.ini
+```
+
+shows how the `mq01` queue manager refers to the `mq01-mqsc` and `mq01-ini`
+configmaps respectively.
+
+Note also how the CR refers to the `mq01:0.0.1` image in the image registry:
+
+```yaml
+queueManager:
+  debug: false
+  image: image-registry.openshift-image-registry.svc:5000/mq01-ci/mq01:0.0.3
+  imagePullPolicy: Always
+```
+
+Feel free to explore these YAMLs to see how the `mq01` queue manager and its
+related resources are connected together. See how everything is anchored from
+the `mq01-qmgr.yaml` YAML file.
+
+---
+
+## Exploring the deployed queue manager resources
+
+We can now use ArgoCD to explore the `mq01` queue manager and associated
+resources that have been deployed to the Kubernetes cluster.
+
+Issue the following command to determine the URL you can use to view the
+resources managed by the `mq01-argo` ArgoCD application:
+
+```bash
+echo $(oc get route openshift-gitops-server -n openshift-gitops -o jsonpath='{"https://"}{.spec.host}{"\n"}')"/applications/mq01-argo?resource="
+```
+
+Paste the generated URL into your browser to see the Kubernetes resources being managed by `mq01-argo`:
+
+<img src="./xdocs/images/diagram10.png" alt="drawing" width="800" border="1"/>
+
+<br>
+
+Notes:
+* Notice how many resources are being managed by the `mq01-argo` application.
+* Click on the `mq01-argo` application to see how it refers to URL
+  `https://github.com/mqorg-odowdaibm/mq01-ops` and path
+  `environments/dev/mq01/` to locate the YAMLs it will deploy to the cluster.
+* See how `mq01-argo` directly manages the qmgr, certificate and two config
+  maps, corresponding to the YAMLs in the `mq01-ops` folder.
+* The `mq01` queue manager CR creates many other resources:
+  * Application route to the queue manager.
+  * UI route to the web console.
+  * Pod that hosts the MQ container, built using the `mq01:0.0.1` image.
+  * PVC (Persistent Volume Claim) that holds the queue manager queue
+    configuration.
+  * ServiceAccount under which the queue manager runs `mq01-ibm-mq`; recall how
+    we granted it access to pull the image from the image registry in the first
+    part of the tutorial.
+
+Feel free to use ArgoCD to examine the deployed resources. You can equally view
+the same resources using the `oc` CLI.
 
 ---
 
