@@ -111,7 +111,8 @@ organization.
 ## Clone `mq01-src` to your local machine
 
 We're going to use the contents of the `mq01-src` repository to build the `mq01`
-queue manager. First we need to clone this repository to our local machine.
+queue manager. First we need to clone this repository to our local machine. 
+We will also need to add a tag to our new repository.
 
 In the terminal window, issue the following command:
 
@@ -119,6 +120,8 @@ In the terminal window, issue the following command:
 cd $HOME/git/$GITORG-tutorial
 git clone https://$GITTOKEN@github.com/$GITORG/mq01-src.git
 cd mq01-src
+git tag demo
+git push origin --tags
 ```
 
 which will clone the repository to your local machine.
