@@ -124,7 +124,7 @@ git tag demo
 git push origin --tags
 ```
 
-which will clone the repository to your local machine.
+which will clone the repository to your local machine and add a tag to this repo.
 
 ```bash
 Cloning into 'mq01-src'...
