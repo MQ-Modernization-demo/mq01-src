@@ -665,6 +665,7 @@ Well done! You have successfully completed this tutorial. You have
 Now that you have a working MQ deployment running in Kubernetes, you add to it in multiple ways:
 
 * [Continuous integration with Tekton triggers](./xdocs/extra/tutorial2.md)
+  (**TBC**)
 
 * [Monitoring with Prometheus and Grafana](./xdocs/extra/tutorial3.md) (**TBD**)
 
