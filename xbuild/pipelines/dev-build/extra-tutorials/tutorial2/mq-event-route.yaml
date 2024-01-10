@@ -13,7 +13,7 @@ metadata:
 spec:
   to:
     kind: Service
-    name: mq-event-listener
+    name: el-mq-event-listener
     weight: 100
   port:
     targetPort: http-listener

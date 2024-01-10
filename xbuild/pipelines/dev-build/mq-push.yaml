@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: git-cli
+  name: git-push
   namespace: mq01-ci
   labels:
     app.kubernetes.io/version: "0.4"
@@ -10,7 +10,7 @@ metadata:
     tekton.dev/pipelines.minVersion: "0.21.0"
     tekton.dev/categories: Git
     tekton.dev/tags: git
-    tekton.dev/displayName: "git cli"
+    tekton.dev/displayName: "git push"
     tekton.dev/platforms: "linux/amd64,linux/s390x,linux/ppc64le"
 spec:
   description: >-
@@ -68,12 +68,6 @@ spec:
       description: |
         Git user email for performing git operation.
       default: ""
-
-    - name: GIT_SCRIPT
-      description: The git script to run.
-      type: string
-      default: |
-        git help
 
     - name: USER_HOME
       description: |
@@ -137,7 +131,16 @@ spec:
         git config --global user.email "$(params.GIT_USER_EMAIL)"
         git config --global user.name "$(params.GIT_USER_NAME)"
 
-        eval '$(params.GIT_SCRIPT)'
+        # Push changes to GitHub
+        cd $(workspaces.source.path)/repo/ops
+        git checkout -b main
+        git add .
+        if ! git diff-index --quiet HEAD; then
+          git commit -m "Updated by build pipeline"
+          git push origin main
+        else
+          echo "No changes to commit"
+        fi
 
         RESULT_SHA="$(git rev-parse HEAD | tr -d '\n')"
         EXIT_CODE="$?"

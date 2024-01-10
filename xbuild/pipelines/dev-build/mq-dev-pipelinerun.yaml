@@ -36,17 +36,4 @@ spec:
     value: "odowdaibm"
   - name: git-user-email
     value: "a_o-dowd@uk.ibm.com"
-  - name: git-script
-    value: |
-      # Push changes to GitHub
-      cd $(workspaces.source.path)/repo/ops
-      git checkout -b main
-      git add .
-      if ! git diff-index --quiet HEAD; then
-        git commit -m "Updated by build pipeline"
-        git push origin main
-      else
-        echo "No changes to commit"
-      fi
 
-      # All done

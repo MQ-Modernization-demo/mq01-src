@@ -24,8 +24,6 @@ spec:
     type: string
   - name: git-user-email
     type: string
-  - name: git-script
-    type: string
   workspaces:
   - name: shared-data
   - name: git-creds
@@ -126,7 +124,7 @@ spec:
   - name: push-yamls
     runAfter: ["store-yamls"]
     taskRef:
-      name: git-cli
+      name: git-push
     workspaces:
     - name: source
       workspace: shared-data
@@ -137,5 +135,3 @@ spec:
       value: $(params.git-user-name)
     - name: GIT_USER_EMAIL
       value: $(params.git-user-email)
-    - name: GIT_SCRIPT
-      value: $(params.git-script)
