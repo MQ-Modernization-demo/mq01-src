@@ -8,6 +8,8 @@ spec:
     This pipeline clones the Queue manager source repository builds an image,
     pushes it to a registry, and runs a user script.
   params:
+  - name: revision
+    type: string
   - name: source-repo-url
     type: string
   - name: dockerfile
@@ -40,7 +42,7 @@ spec:
     - name: url
       value: $(params.source-repo-url)
     - name: revision
-      value: "main"
+      value: $(params.revision)
     - name: subdirectory
       value: repo/main
     - name: depth

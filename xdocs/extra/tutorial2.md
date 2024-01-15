@@ -75,7 +75,13 @@ Explore and customize the event listener:
 
 ```bash
 envsubst < mq-event-listener.yaml > eventfile.tmp && mv eventfile.tmp mq-event-listener.yaml
+```
+
+```bash
+envsubst < mq-trigger-template.yaml > templatefile.tmp && mv templatefile.tmp mq-trigger-template.yaml
 ``````
+
+
 ```bash
 oc apply -f mq-event-route.yaml
 oc apply -f mq-event-listener.yaml
@@ -84,28 +90,28 @@ oc apply -f mq-trigger-binding.yaml
 ```
 
 ```bash
-oc get route -n ci
+oc get route -n mq01-ci
 ```
 
 To view the event listener service that is accessed via the route, issue the
 following command:
 
 ```bash
-oc get eventlistener -n ci
+oc get eventlistener -n mq01-ci
 ```
 
 To view the trigger template that is used by the event service to call the
 `mq-qm-dev` pipeline, issue the following command:
 
 ```bash
-oc get triggertemplate -n ci
+oc get triggertemplate -n mq01-ci
 ```
 
 To view the trigger binding that is used to marshal the input for the
 pipeline run, issue the following command:
 
 ```bash
-oc get triggerbinding -n ci
+oc get triggerbinding -n mq01-ci
 ```
 
 ```bash

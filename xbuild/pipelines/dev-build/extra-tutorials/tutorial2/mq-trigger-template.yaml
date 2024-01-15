@@ -17,10 +17,36 @@ spec:
     metadata:
       generateName: mq-dev-pipeline-run-
     spec:
+      workspaces:
+      - name: shared-data
+        volumeClaimTemplate:
+          spec:
+            accessModes:
+            - ReadWriteOnce
+            resources:
+              requests:
+                storage: 1Gi
+      - name: git-creds
+        secret:
+          secretName: mq01-git-credentials
       params:
-      - name: git-url
+      - name: source-repo-url
         value: $(tt.params.gitrepositoryurl)
-      - name: git-revision
+      - name: revision
         value: $(tt.params.gitrevision)
+      - name: dockerfile
+        value: $(workspaces.source.path)/repo/main/bin/Dockerfile
+      - name: ops-repo-url
+        value: https://github.com/$GITORG/mq01-ops.git
+      - name: image-reference
+        value: image-registry.openshift-image-registry.svc:5000/mq01-ci/mq01
+      - name: storage-driver
+        value: vfs
+      - name: tls-verify
+        value: "false"
+      - name: git-user-name
+        value: "odowdaibm"
+      - name: git-user-email
+        value: "a_o-dowd@uk.ibm.com"
       pipelineRef:
         name: mq-dev-pipeline
