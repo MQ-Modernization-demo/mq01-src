@@ -8,7 +8,7 @@ metadata:
 spec:
   serviceAccountName: pipeline
   triggers:
-  - name: mq-dev
+  - name: mq-trigger
     interceptors:
       - ref:
           name: "cel"
