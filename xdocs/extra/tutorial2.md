@@ -202,7 +202,7 @@ triggerbinding.triggers.tekton.dev/mq-trigger-binding created
 
 ---
 
-## Customizing the trigger template.
+## Customizing the trigger template
 
 Whereas the **trigger binding** gets the necessary data from the webhook event,
 its the **trigger template** marshals this, and other data, to run the
@@ -341,8 +341,7 @@ Feel free to explore the output.
 Let's now use the GitHub UI to configure a webhook that creates an event, and
 sends it to the route whenever the `mq01-src` repository changes.
 
-
-Issue the following command to determine the URL for the UI:
+Issue the following command to determine the URL for the GitHub UI:
 
 ```bash
 echo https://github.com/${GITORG}/mq01-src/settings/hooks/new
@@ -357,59 +356,45 @@ https://github.com/mqorg-odowdaibm/mq01-src/settings/hooks/new
 Copy the URL into your browser to launch the GitHub webpage to configure a new
 webhook for your `mq01-src` repository:
 
-![diagram92](./images/diagram92.png)
+![diagram20](../images/diagram20.png)
 
-We need to complete these details to configure our webhook.
+Let's now configure this wqebhook.
 
 ---
 
-## Configure the webhook
+## Configure the webbook
 
-To configure a webhook, we need to identify the URL it will call when it
-generates an event, the format of the event, and for which GitHub events we'll
-generate an event.
+If your cluster is enabled for DNS, you can configure the webhook using the
+following instructions.  However, if your cluster address is not DNS enabled,
+use this [optional topic](#optional-configure-the-github-webhook-forwarder) to
+configure the webhook forwarder.
 
-Issue the following command to determine the URL of the event listener route:
-
-```bash
-echo http://$(oc get route el-cnkt-event-listener -n ci -o jsonpath='{.spec.host}')
-```
-
-for example:
-
-``` { .text .no-copy }
-http://el-cnkt-event-listener-ci.xxxxx.containers.appdomain.cloud
-```
-
-Here's a sample webhook configuration:
-
-![diagram93](./images/diagram93.png)
-
-Configure the following arguments:
-
+Complete the webhook details as follows:
 * Set the **Payload URL** using the event listener route address.
+  Use the following command to determine this URL:
+    ```bash
+     echo http://$(oc get route el-cnkt-event-listener -n ci -o jsonpath='.spec.host}')
+     ```
 * Set **Content type** to `application/json`.
 * Select **Let me select individual event**
-  * Select **Pull requests** and **Pushes** from the list of available
-    events.
-
-![diagram94](./images/diagram94.png)
+  * Select **Pull requests** from the list of available events.
+  * Select and **Pushes**  from the list of available events.
 
 Click on `Add webhook` to create the webhook.
 
-A new webhook has been added*
-
 In the GitHub UI, you can see that a new webhook has been added:
 
-![diagram95](./images/diagram95.png)
+![diagram21](../images/diagram21.png)
 
-Notice the webhook's name and that it's generating and event whenever a
+Notice the webhook's name and that it is generating an event whenever a
 `pull-request` or `push` is issued against this repository.
 
-Let's now make a change to the `QM1` source repository and watch the webhook
-at work.
+Let's now make a change to the `mq01-src` source repository and watch the
+webhook at work.
 
 ---
+
+
 
 ## (Optional) Configure the GitHub webhook forwarder
 
