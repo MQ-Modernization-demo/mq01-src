@@ -373,7 +373,7 @@ Complete the webhook details as follows:
 * Set the **Payload URL** using the event listener route address.
   Use the following command to determine this URL:
     ```bash
-     echo http://$(oc get route el-mq-event-listener -n mq01-ci -o jsonpath='.spec.host}')
+     echo http://$(oc get route mq-event-listener -n mq01-ci -o jsonpath='.spec.host}')
      ```
 * Set **Content type** to `application/json`.
 * Select **Let me select individual event**
