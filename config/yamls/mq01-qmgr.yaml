@@ -71,6 +71,15 @@ spec:
         env:
         - name: MQSNOAUT
           value: "yes"
+        - name: MQ_DEV
+          value: "true"
+        - name: MQ_CONNAUTH_USE_HTP
+          value: "true"
+        - name: MQ_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mq01-admin-password
+              key: mq01-admin-password
   terminationGracePeriodSeconds: 30
   tracing:
     agent: {}

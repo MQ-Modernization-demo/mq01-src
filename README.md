@@ -586,7 +586,15 @@ You can connect to the web console using your browser. You may need to add
 
 Login to the console using:
 * `username:` `admin`
-* `password:` `passw0rd`
+
+You can determine the password to use from the `mq01-admin-password` secret.
+
+Issue the following command to retrieve the password:
+```bash
+oc extract secret/mq01-admin-password -n mq01-dev --keys="mq01-admin-password" --to=-
+```
+
+Copy the generated into the `password` field to logon to the MQ admin console.
 
 Feel free to explore the web console.
 
