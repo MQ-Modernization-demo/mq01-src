@@ -23,11 +23,11 @@ In this tutorial, you will:
 By the end of the tutorial, you will have practical experience and knowledge of
 platform engineering with MQ in a Kubernetes environment.
 
-:closed_book: This tutorial runs well on [Single Node
+:closed_book: This tutorial runs equally well on [Single Node
 OpenShift](https://www.redhat.com/en/blog/meet-single-node-openshift-our-smallest-openshift-footprint-edge-architectures),
 a lightweight, fully functional Kubernetes distribution. It's an excellent
-technology for developers to try out all the features without requiring multiple
-master and worker nodes. We highlight the occasional situations when
+choice for developers or small production environments where multiple master and
+worker nodes have marginal benefit. We highlight the occasional situations when
 instructions are slightly different.
 
 ---
